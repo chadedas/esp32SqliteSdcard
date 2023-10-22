@@ -29,19 +29,19 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
 
 
 
-  int *axisX = ((int **)data)[0];
-  int *axisY = ((int **)data)[1];
+  int *timeX = ((int **)data)[0];
+  int *timeY = ((int **)data)[1];
   int *count = ((int **)data)[2];
 
   for (i = 0; i < argc; i++) {
-    if (strcmp(azColName[i], "axisX") == 0) {
+    if (strcmp(azColName[i], "timeX") == 0) {
       if (argv[i] != NULL) {
-        *axisX = atoi(argv[i]);
+        *timeX = atoi(argv[i]);
       }
     }
-    if (strcmp(azColName[i], "axisY") == 0) {
+    if (strcmp(azColName[i], "timeY") == 0) {
       if (argv[i] != NULL) {
-        *axisY = atoi(argv[i]);
+        *timeY = atoi(argv[i]);
       }
     }
     if (strcmp(azColName[i], "count") == 0) {
@@ -110,22 +110,22 @@ void loop() {
     String input = Serial.readStringUntil('\n');
     input.trim();
 
-    int axisX = -1;
-    int axisY = -1;
+    int timeX = -1;
+    int timeY = -1;
     int count = -1;
 
-    int *data[] = { &axisX, &axisY, &count };
+    int *data[] = { &timeX, &timeY, &count };
 
-    // ดึงค่า axisX จากฐานข้อมูล
-    String sqlX = "SELECT axisX FROM project WHERE ID = '" + input + "'";
+    // ดึงค่า timeX จากฐานข้อมูล
+    String sqlX = "SELECT timeX FROM project WHERE ID = '" + input + "'";
     if (sqlite3_exec(db2, sqlX.c_str(), callback, data, &zErrMsg) != SQLITE_OK) {
-      Serial.println("Error executing SQL for axisX.");
+      Serial.println("Error executing SQL for timeX.");
     }
 
-    // ดึงค่า axisY จากฐานข้อมูล
-    String sqlY = "SELECT axisY FROM project WHERE ID = '" + input + "'";
+    // ดึงค่า timeY จากฐานข้อมูล
+    String sqlY = "SELECT timeY FROM project WHERE ID = '" + input + "'";
     if (sqlite3_exec(db2, sqlY.c_str(), callback, data, &zErrMsg) != SQLITE_OK) {
-      Serial.println("Error executing SQL for axisY.");
+      Serial.println("Error executing SQL for timeY.");
     }
 
     // ดึงค่า count จากฐานข้อมูล
@@ -134,16 +134,16 @@ void loop() {
       Serial.println("Error executing SQL for count.");
     }
 
-    if (axisX >= 0 && axisY >= 0 && count >= 0) {
+    if (timeX >= 0 && timeY >= 0 && count >= 0) {
       int X = 3;
       int Y = 5;
 
-      // เปรียบเทียบค่า axisX, axisY และ count
-      if (axisX >= X && axisY >= Y && count > 0) {
-        Serial.print(input + ": axisX = " + axisX + ", axisY = " + axisY + ", count = " + count + "\n");
+      // เปรียบเทียบค่า timeX, timeY และ count
+      if (timeX >= X && timeY >= Y && count > 0) {
+        Serial.print(input + ": timeX = " + timeX + ", timeY = " + timeY + ", count = " + count + "\n");
         Serial.println("Condition is met!");
       } else {
-        Serial.print(input + ": axisX = " + axisX + ", axisY = " + axisY + ", count = " + count + "\n");
+        Serial.print(input + ": timeX = " + timeX + ", timeY = " + timeY + ", count = " + count + "\n");
         Serial.println("Condition is not met!");
       }
     } else {
