@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <sqlite3.h>
 #include <SPI.h>
-#include <FS.h>
 #include "SD.h"
 
 // Define the stepper motor connections (change as needed)
