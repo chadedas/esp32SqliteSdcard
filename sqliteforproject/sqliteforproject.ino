@@ -13,6 +13,8 @@
     setup ทำงานเมื่อเริ่มต้นโปรแกรม รวมถึงเริ่ม SPI, เริ่ม SD Card, เริ่ม SQLite และเปิดฐานข้อมูล.
     loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน Serial Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน Serial Monitor.
     */
+
+//#include ใช้ในการเรียกใช้ไลบรารีและหัวข้อความนั้นใช้เป็นคำอธิบายในการอ้างอิงถึงโค้ดหรือผลงาน    
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
@@ -20,7 +22,7 @@
 #include <FS.h>
 #include "SD.h"
 
-// ฟังก์ชั่น callback สำหรับเรียกข้อมูล Sqlite มาไว้ในพารามิเตอร์
+// callback คือฟังก์ชันที่จะถูกเรียกเมื่อรับข้อมูลจาก SQLite และเอาไว้ในพารามิเตอร์ที่ต้องการ คำอธิบายและการแปลงข้อมูลให้อยู่ในรูปแบบที่ถูกต้อง.
 const char *data = "Callback function called";
 static int callback(void *data, int argc, char **argv, char **azColName) {
   int i;
@@ -49,7 +51,8 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
   }
   return 0;
 }
-// ฟังก์ชั่นเปิดฐานข้อมูล
+
+// openDb ใช้ในการเปิดฐานข้อมูล SQLite ตามชื่อไฟล์และเปิดการเชื่อมต่อ.
 int openDb(const char *filename, sqlite3 **db) {
   int rc = sqlite3_open(filename, db);
   if (rc) {
@@ -63,7 +66,7 @@ int openDb(const char *filename, sqlite3 **db) {
 
 char *zErrMsg = 0;
 
-// ฟังก์ชั่นสำหรับประมวลผลคำสั่ง SQL และเรียกใช้ callback
+//db_exec ทำหน้าที่ส่งคำสั่ง SQL ไปยัง SQLite และตรวจสอบผลการดำเนินการ และเก็บข้อมูลผ่าน callback.
 int db_exec(sqlite3 *db, const char *sql) {
   Serial.println(sql);
   long start = micros();
@@ -80,6 +83,8 @@ int db_exec(sqlite3 *db, const char *sql) {
 }
 
 sqlite3 *db2;
+
+//setup ทำงานเมื่อเริ่มต้นโปรแกรม รวมถึงเริ่ม SPI, เริ่ม SD Card, เริ่ม SQLite และเปิดฐานข้อมูล.
 void setup() {
   Serial.begin(115200);
   char *zErrMsg = 0;
@@ -98,6 +103,7 @@ void setup() {
   if (openDb("/sd/mdr512.db", &db2))
     return;
 }
+//loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน Serial Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน Serial Monitor.
 void loop() {
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
