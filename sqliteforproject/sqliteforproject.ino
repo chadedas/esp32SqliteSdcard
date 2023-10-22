@@ -31,7 +31,6 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
   int *count = ((int **)data)[2];
 
   for (i = 0; i < argc; i++) {
-    //Serial.printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     if (strcmp(azColName[i], "axisX") == 0) {
       if (argv[i] != NULL) {
         *axisX = atoi(argv[i]);
