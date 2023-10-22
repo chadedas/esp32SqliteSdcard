@@ -11,7 +11,7 @@
     openDb ใช้ในการเปิดฐานข้อมูล SQLite ตามชื่อไฟล์และเปิดการเชื่อมต่อ.
     db_exec ทำหน้าที่ส่งคำสั่ง SQL ไปยัง SQLite และตรวจสอบผลการดำเนินการ และเก็บข้อมูลผ่าน callback.
     setup ทำงานเมื่อเริ่มต้นโปรแกรม รวมถึงเริ่ม SPI, เริ่ม SD Card, เริ่ม SQLite และเปิดฐานข้อมูล.
-    loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน Serial Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน Serial Monitor.
+    loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน //Serial2 Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน //Serial2 Monitor.
     */
 
 //#include ใช้ในการเรียกใช้ไลบรารีและหัวข้อความนั้นใช้เป็นคำอธิบายในการอ้างอิงถึงโค้ดหรือผลงาน
@@ -73,10 +73,10 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
 int openDb(const char *filename, sqlite3 **db) {
   int rc = sqlite3_open(filename, db);
   if (rc) {
-    Serial.printf("Can't open database: %s\n", sqlite3_errmsg(*db));
+    //Serial2.printf("Can't open database: %s\n", sqlite3_errmsg(*db));
     return rc;
   } else {
-    Serial.printf("Opened database successfully\n");
+    //Serial2.printf("Opened database successfully\n");
   }
   return rc;
 }
@@ -85,17 +85,17 @@ char *zErrMsg = 0;
 
 //db_exec ทำหน้าที่ส่งคำสั่ง SQL ไปยัง SQLite และตรวจสอบผลการดำเนินการ และเก็บข้อมูลผ่าน callback.
 int db_exec(sqlite3 *db, const char *sql) {
-  Serial.println(sql);
+  //Serial2.println(sql);
   long start = micros();
   int rc = sqlite3_exec(db, sql, callback, (void *)data, &zErrMsg);
   if (rc != SQLITE_OK) {
-    Serial.printf("SQL error: %s\n", zErrMsg);
+    //Serial2.printf("SQL error: %s\n", zErrMsg);
     sqlite3_free(zErrMsg);
   } else {
-    Serial.printf("Operation done successfully\n");
+    //Serial2.printf("Operation done successfully\n");
   }
-  Serial.print(F("Time taken:"));
-  Serial.println(micros() - start);
+  //Serial2.print(F("Time taken:"));
+  //Serial2.println(micros() - start);
   return rc;
 }
 
@@ -103,7 +103,7 @@ sqlite3 *db2;
 
 //setup ทำงานเมื่อเริ่มต้นโปรแกรม รวมถึงเริ่ม SPI, เริ่ม SD Card, เริ่ม SQLite และเปิดฐานข้อมูล.
 void setup() {
-  Serial.begin(115200);
+  Serial2.begin(115200);
 
 
   // เริ่ม SQLite
@@ -114,13 +114,13 @@ void setup() {
   // Set outputs to LOW
   digitalWrite(output26, LOW);
   digitalWrite(output27, LOW);
-  Serial.print("Setting AP (Access Point)…");
+  //Serial2.print("Setting AP (Access Point)…");
   // Remove the password parameter, if you want the AP (Access Point) to be open
   WiFi.softAP(ssid, password);
 
   IPAddress IP = WiFi.softAPIP();
-  Serial.print("AP IP address: ");
-  Serial.println(IP);
+  //Serial2.print("AP IP address: ");
+  //Serial2.println(IP);
   SPI.begin();
 
   // เริ่ม SD Card
@@ -136,17 +136,17 @@ void setup() {
   if (openDb("/sd/mdr512.db", &db2))
     return;
 }
-//loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน Serial Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน Serial Monitor.
+//loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน //Serial2 Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน //Serial2 Monitor.
 void loop() {
   WiFiClient client = server.available();  // Listen for incoming clients
 
   if (client) {                     // If a new client connects,
-    Serial.println("New Client.");  // print a message out in the serial port
+    //Serial2.println("New Client.");  // print a message out in the //Serial2 port
     String currentLine = "";        // make a String to hold incoming data from the client
     while (client.connected()) {    // loop while the client's connected
       if (client.available()) {     // if there's bytes to read from the client,
         char c = client.read();     // read a byte, then
-        Serial.write(c);            // print it out the serial monitor
+        //Serial2.write(c);            // print it out the //Serial2 monitor
         header += c;
         if (c == '\n') {  // if the byte is a newline character
           // if the current line is blank, you got two newline characters in a row.
@@ -161,19 +161,20 @@ void loop() {
 
             // turns the GPIOs on and off
             if (header.indexOf("GET /26/on") >= 0) {
-              Serial.println("GPIO 26 on");
+              //Serial2.println("GPIO 26 on");
               output26State = "on";
               digitalWrite(output26, HIGH);
+
             } else if (header.indexOf("GET /26/off") >= 0) {
-              Serial.println("GPIO 26 off");
+              //Serial2.println("GPIO 26 off");
               output26State = "off";
               digitalWrite(output26, LOW);
             } else if (header.indexOf("GET /27/on") >= 0) {
-              Serial.println("GPIO 27 on");
+              //Serial2.println("GPIO 27 on");
               output27State = "on";
               digitalWrite(output27, HIGH);
             } else if (header.indexOf("GET /27/off") >= 0) {
-              Serial.println("GPIO 27 off");
+              //Serial2.println("GPIO 27 off");
               output27State = "off";
               digitalWrite(output27, LOW);
             }
@@ -227,8 +228,8 @@ void loop() {
     header = "";
     // Close the connection
     client.stop();
-    Serial.println("Client disconnected.");
-    Serial.println("");
+    //Serial2.println("Client disconnected.");
+    //Serial2.println("");
   }
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
@@ -243,25 +244,26 @@ void loop() {
     // ดึงค่า timex จากฐานข้อมูล
     String sqlX = "SELECT timex FROM project WHERE ID = '" + input + "'";
     if (sqlite3_exec(db2, sqlX.c_str(), callback, data, &zErrMsg) != SQLITE_OK) {
-      Serial.println("Error executing SQL for timex.");
+      //Serial2.println("Error executing SQL for timex.");
     }
 
     // ดึงค่า timey จากฐานข้อมูล
     String sqlY = "SELECT timey FROM project WHERE ID = '" + input + "'";
     if (sqlite3_exec(db2, sqlY.c_str(), callback, data, &zErrMsg) != SQLITE_OK) {
-      Serial.println("Error executing SQL for timey.");
+      //Serial2.println("Error executing SQL for timey.");
     }
 
     // ดึงค่า count จากฐานข้อมูล
     String sqlCount = "SELECT count FROM project WHERE ID = '" + input + "'";
     if (sqlite3_exec(db2, sqlCount.c_str(), callback, data, &zErrMsg) != SQLITE_OK) {
-      Serial.println("Error executing SQL for count.");
+      //Serial2.println("Error executing SQL for count.");
     }
 
     if (timex >= 0 && timey >= 0 && count >= 0) {
-      Serial.print(input + ": timex = " + timex + ", timey = " + timey + ", count = " + count + "\n");
+      Serial2.println(timex + " " + timey /*+ ", count = " + count + "\n"*/);
+
     } else {
-      Serial.println(input + " not found in the database.");
+      //Serial2.println(input + " not found in the database.");
     }
   }
 }
