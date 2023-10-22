@@ -1,4 +1,15 @@
+    /*
+    โค้ดนี้ใช้ Arduino IDE เพื่อการสื่อสารกับ SQLite ฐานข้อมูลโดยใช้ SD Card และ SPI. 
+    ดาวน์โหลดไลบรารี "sqlite3.h" และ "SD.h" 
+    สำหรับการใช้งานเพื่อเข้าถึงข้อมูล SQLite และอ่านและเขียนไฟล์บน SD Card 
 
+    #include ใช้ในการเรียกใช้ไลบรารีและหัวข้อความนั้นใช้เป็นคำอธิบายในการอ้างอิงถึงโค้ดหรือผลงาน
+    callback คือฟังก์ชันที่จะถูกเรียกเมื่อรับข้อมูลจาก SQLite และเอาไว้ในพารามิเตอร์ที่ต้องการ คำอธิบายและการแปลงข้อมูลให้อยู่ในรูปแบบที่ถูกต้อง.
+    openDb ใช้ในการเปิดฐานข้อมูล SQLite ตามชื่อไฟล์และเปิดการเชื่อมต่อ.
+    db_exec ทำหน้าที่ส่งคำสั่ง SQL ไปยัง SQLite และตรวจสอบผลการดำเนินการ และเก็บข้อมูลผ่าน callback.
+    setup ทำงานเมื่อเริ่มต้นโปรแกรม รวมถึงเริ่ม SPI, เริ่ม SD Card, เริ่ม SQLite และเปิดฐานข้อมูล.
+    loop ทำงานซ้ำๆ และรอการป้อนข้อมูลผ่าน Serial Monitor, ดึงข้อมูลจาก SQLite, เปรียบเทียบข้อมูล, และแสดงผลลัพธ์บน Serial Monitor.
+    */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sqlite3.h>
@@ -6,10 +17,11 @@
 #include <FS.h>
 #include "SD.h"
 
+// ฟังก์ชั่น callback สำหรับเรียกข้อมูล Sqlite มาไว้ในพารามิเตอร์
 const char *data = "Callback function called";
 static int callback(void *data, int argc, char **argv, char **azColName) {
   int i;
-  //Serial.printf("%s: ", (const char *)data);
+
 
   int *axisX = ((int **)data)[0];
   int *axisY = ((int **)data)[1];
@@ -35,7 +47,7 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
   }
   return 0;
 }
-
+// ฟังก์ชั่นเปิดฐานข้อมูล
 int openDb(const char *filename, sqlite3 **db) {
   int rc = sqlite3_open(filename, db);
   if (rc) {
@@ -48,6 +60,8 @@ int openDb(const char *filename, sqlite3 **db) {
 }
 
 char *zErrMsg = 0;
+
+// ฟังก์ชั่นสำหรับประมวลผลคำสั่ง SQL และเรียกใช้ callback
 int db_exec(sqlite3 *db, const char *sql) {
   Serial.println(sql);
   long start = micros();
@@ -69,12 +83,16 @@ void setup() {
   char *zErrMsg = 0;
   int rc;
 
-
+  // เริ่ม SPI
   SPI.begin();
+
+  // เริ่ม SD Card
   SD.begin();
 
+  // เริ่ม SQLite
   sqlite3_initialize();
 
+  // เปิดฐานข้อมูล
   if (openDb("/sd/mdr512.db", &db2))
     return;
 }
@@ -83,10 +101,6 @@ void loop() {
     String input = Serial.readStringUntil('\n');
     input.trim();
 
-  if (input.startsWith("\"�?\"�?\"�?")) {
-    // ข้ามข้อมูลที่ไม่ต้องการ
-    return;
-  }
     int axisX = -1;
     int axisY = -1;
     int count = -1;
@@ -115,7 +129,7 @@ void loop() {
       int X = 3;
       int Y = 5;
 
-      // เปรียบเทียบค่า axisX, axisY และ count กับค่าที่คุณต้องการ
+      // เปรียบเทียบค่า axisX, axisY และ count
       if (axisX >= X && axisY >= Y && count > 0) {
         Serial.print(input + ": axisX = " + axisX + ", axisY = " + axisY + ", count = " + count + "\n");
         Serial.println("Condition is met!");
