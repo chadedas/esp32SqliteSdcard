@@ -1,4 +1,7 @@
-    /*
+/*
+
+    โปรเจค อาจารย์ ยุทธนา
+
     โค้ดนี้ใช้ Arduino IDE เพื่อการสื่อสารกับ SQLite ฐานข้อมูลโดยใช้ SD Card และ SPI. 
     ดาวน์โหลดไลบรารี "sqlite3.h" และ "SD.h" 
     สำหรับการใช้งานเพื่อเข้าถึงข้อมูล SQLite และอ่านและเขียนไฟล์บน SD Card 
@@ -105,7 +108,7 @@ void loop() {
     int axisY = -1;
     int count = -1;
 
-    int *data[] = {&axisX, &axisY, &count};
+    int *data[] = { &axisX, &axisY, &count };
 
     // ดึงค่า axisX จากฐานข้อมูล
     String sqlX = "SELECT axisX FROM project WHERE ID = '" + input + "'";
@@ -142,6 +145,3 @@ void loop() {
     }
   }
 }
-
-
-
