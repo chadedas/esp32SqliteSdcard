@@ -28,6 +28,7 @@ static int callback(void *data, int argc, char **argv, char **azColName) {
   int i;
 
 
+
   int *axisX = ((int **)data)[0];
   int *axisY = ((int **)data)[1];
   int *count = ((int **)data)[2];
