@@ -74,10 +74,10 @@ void loop() {
 
         } else if (i == 2) {
           targetCount1 = line.toInt();
-          Serial.println("targetCount1 = " + String(x));
+          Serial.println("targetCount1 = " + String(targetCount1));
         } else if (i == 3) {
           targetCount2 = line.toInt();
-          Serial.println("targetCount2 = " + String(y));
+          Serial.println("targetCount2 = " + String(targetCount2));
         }
       }
 
@@ -137,4 +137,20 @@ void loop() {
       Serial.println("Error opening file");
     }
   }
+}
+
+void controlDCMotor() {
+  digitalWrite(MotorPin2, HIGH); // สั่งงานให้โมดูลขับมอเตอร์จ่ายไฟ ออกขา OUT3
+  digitalWrite(MotorPin3, LOW); // สั่งงานให้ขา OUT4 เป็นขารับไฟจากขา OUT3
+  delay(3500);
+  digitalWrite(MotorPin2, LOW); // สั่งงานให้ขา OUT3 หยุดจ่ายไฟ
+  digitalWrite(MotorPin3, LOW); // สั่งงานให้ขา OUT4 หยุดจ่ายไฟ
+  delay(100);
+  digitalWrite(MotorPin2, LOW); // สั่งงานให้ขา OUT3 เป็นขารับไฟจากขา OUT4
+  digitalWrite(MotorPin3, HIGH); // สั่งงานให้โมดูลขับมอเตอร์จ่ายไฟ ออกขา OUT4
+  delay(3500);
+  digitalWrite(MotorPin2, LOW); // สั่งงานให้ขา OUT3 หยุดจ่ายไฟ
+  digitalWrite(MotorPin3, LOW); // สั่งงานให้ขา OUT4 หยุดจ่ายไฟ
+  
+  dcMotorDone = true; // ตั้งค่าเป็น true เมื่อ DC Motor ทำงานเสร็จสิ้น
 }
