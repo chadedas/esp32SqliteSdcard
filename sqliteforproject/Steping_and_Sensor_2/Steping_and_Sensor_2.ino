@@ -1,3 +1,5 @@
+#include <SPI.h>
+#include <SD.h>
 #include <AccelStepper.h>
 
 // Define the stepper motor connections (change as needed)
@@ -12,10 +14,14 @@ AccelStepper stepper1(AccelStepper::DRIVER, MOTOR_PIN_STEP_1, MOTOR_PIN_DIR_1);
 AccelStepper stepper2(AccelStepper::DRIVER, MOTOR_PIN_STEP_2, MOTOR_PIN_DIR_2);
 int targetCount1 = 0;
 int targetCount2 = 0;
+int count = 0;
 bool motor1Reversed = false;
 bool motor2Reversed = false;
 bool motor2Running = false;
 bool dcMotorDone = false;
+
+File myFile;
+String fileName;
 
 void setup() {
   // Set maximum speed and acceleration for both motors
@@ -34,23 +40,44 @@ void setup() {
   dcMotorDone = false; // เริ่มต้นเป็น false
   Serial.begin(9600);
   
-  Serial.println("Enter target time for motor 1 (in seconds): ");
+    while (!Serial) {
+  }
+
+  if (!SD.begin(10)) {
+    Serial.println("initialization failed!");
+    while (1)
+      ;
+  }
+  Serial.println("initialization done.");
+  Serial.println("Enter ID: ");
+
   while (!Serial.available()) {
     // Wait for user input from the Serial Monitor
   }
-  targetCount1 = Serial.parseInt();
-  Serial.print("Target time for motor 1 set to: ");
-  Serial.print(targetCount1);
-  Serial.println(" seconds");
-  
-  Serial.println("Enter target time for motor 2 (in seconds): ");
-  while (!Serial.available()) {
-    // Wait for user input from the Serial Monitor
-  }
-  targetCount2 = Serial.parseInt();
-  Serial.print("Target time for motor 2 set to: ");
-  Serial.print(targetCount2);
-  Serial.println(" seconds");
+      fileName = Serial.readStringUntil('\n');
+    myFile = SD.open((String(fileName) + "/" + String(fileName) + ".txt").c_str(), FILE_READ);
+ 
+ if (myFile) {
+      for (int i = 1; i <= 3; i++) {
+        String line = myFile.readStringUntil('\n');
+        line.trim();
+        if (i == 1) {
+          count = line.toInt();
+          Serial.println("count = " + String(count));
+
+        } else if (i == 2) {
+          targetCount1 = line.toInt();
+          Serial.println("targetCount1 = " + String(x));
+        } else if (i == 3) {
+          targetCount2 = line.toInt();
+          Serial.println("targetCount2 = " + String(y));
+        }
+      }
+
+      myFile.close();
+    } else {
+      Serial.println("Error opening file");
+    }
 }
 
 void loop() {
