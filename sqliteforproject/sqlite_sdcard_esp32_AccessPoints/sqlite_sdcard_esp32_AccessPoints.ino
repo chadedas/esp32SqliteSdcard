@@ -103,7 +103,7 @@ sqlite3 *db2;
 
 //setup ทำงานเมื่อเริ่มต้นโปรแกรม รวมถึงเริ่ม SPI, เริ่ม SD Card, เริ่ม SQLite และเปิดฐานข้อมูล.
 void setup() {
-  Serial2.begin(115200);
+  Serial2.begin(9600);
 
 
   // เริ่ม SQLite
